@@ -3,7 +3,7 @@ import re
 from ..utils.errors import FlorentSMSError
 from ..utils.strings import FEEDBACK_ERROR_MESSAGES
 
-PATTERN = re.compile("@(.*):\s?@(\w*)\s(.*)")
+PATTERN = re.compile("^@(\w*)[:,]?\s?(@(\w+))?(.*)")
 
 def route_message(body):
     """
@@ -11,14 +11,16 @@ def route_message(body):
 
     """
     results = PATTERN.match(body)
-    info = ["company", "topic", "feedback"]
-    for idx in xrange(len(info)):
-        try:
-            info[idx] = results.group(idx)
-        except IndexError:
-            message = FEEDBACK_ERROR_MESSAGES[idx]
-            if idx > 0:
-                message = message.format(info[idx - 1])
-            raise FlorentSMSError(message)
 
-    return tuple(info)
+    if not results:
+        raise FlorentSMSError(FEEDBACK_ERROR_MESSAGES[0])
+
+    company, _, topic, feedback = results.groups()
+    if not company:
+        raise FlorentSMSError(FEEDBACK_ERROR_MESSAGES[0])
+    if not topic:
+        topic = "default"
+    if not feedback:
+        raise FlorentSMSError(FEEDBACK_ERROR_MESSAGES[2])
+
+    return company, topic, feedback
