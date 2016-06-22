@@ -3,7 +3,9 @@ import json
 from .utils import route_message
 from ..database.feedback import Feedback
 from ..database import get_session
+from ..utils import getLogger
 
+FEEDBACK_LOGGER = getLogger("FeedbackService")
 def service(message):
     serialized_message = message
     message = json.loads(message)
@@ -20,6 +22,13 @@ def service(message):
         category=topic,
         serialized=serialized_message
     )
+
+    FEEDBACK_LOGGER.info("Received: From {number} for {company} about {topic} saying {feedback}".format(
+        number=message["From"],
+        company=company,
+        topic=topic,
+        feedback=feedback
+    ))
 
     session = get_session(company)
     session.add(feedback)
