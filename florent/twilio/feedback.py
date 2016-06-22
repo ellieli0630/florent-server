@@ -7,8 +7,6 @@ from ..utils import getLogger
 
 FEEDBACK_LOGGER = getLogger("FeedbackService")
 def service(message):
-    serialized_message = message
-    message = json.loads(message)
     body = message["Body"]
 
     company, topic, feedback = route_message(body)
@@ -19,8 +17,8 @@ def service(message):
         state=message["FromState"],
         zip_code=message["FromZip"],
         sender=message["From"],
-        category=topic,
-        serialized=serialized_message
+        topic=topic,
+        serialized=json.dumps(message)
     )
 
     FEEDBACK_LOGGER.info("Received: From {number} for {company} about {topic} saying {feedback}".format(

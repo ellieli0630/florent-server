@@ -9,7 +9,7 @@ from tornado.escape import json_encode
 
 from manager import THREAD_POOL, execute
 from ..utils import getLogger
-from ..utils.errors import FlorentError, DEFAULT_ERROR
+from ..utils.errors import FlorentError, FlorentSMSError, DEFAULT_ERROR
 
 LOGGER = getLogger("FlorentRouter")
 class FlorentRouter(RequestHandler):
