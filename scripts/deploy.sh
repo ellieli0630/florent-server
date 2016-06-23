@@ -6,4 +6,7 @@ sudo docker build -t florent-docker .
 
 sudo docker kill $(sudo docker ps -q)
 
-sudo docker run -d -v /var/lib/postgresql/9.3/main -p 0.0.0.0:80:80 -t florent-docker
+DOCKER_ENV_STRING="-e TWILIO_ACCOUNT_SID="$TWILIO_ACCOUNT_SID" -e TWILIO_ACCOUNT_TOKEN="$TWILIO_ACCOUNT_TOKEN
+DOCKER_PORT_STRING="-p 0.0.0.0:80:80"
+DOCKER_VOLUMES_STRING="-v /var/lib/postgresql/9.3/main"
+sudo docker run -d $DOCKER_VOLUMES_STRING $DOCKER_PORT_STRING $DOCKER_ENV_STRING -t florent-docker
