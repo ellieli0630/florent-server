@@ -53,7 +53,7 @@ class NodeList(list):
 
 class Node():
     '''Node class represents a single graph node'''
-    def __init__(self, parent_graph, dic, makenew=True):
+    def __init__(self, parent_graph, dic, makenew=True,make_or_fetch=False):
         '''node constructor
 
         Args:
@@ -63,8 +63,17 @@ class Node():
         self.dict = dic
 
         self.parent_graph = parent_graph
+        if make_or_fetch:
+            result = parent_graph.Match(dic)
+            if len(result) > 0:
+                self.dict = result[0].dict
+            else:
+                node = parent_graph.AddNode(self)
+                self['id'] = node['id']
+
         if makenew:
-            parent_graph.AddNode(self)
+            node = parent_graph.AddNode(self)
+            self['id'] = node['id']
 
     def __iter__(self):
         return self.dict.__iter__()
@@ -75,6 +84,7 @@ class Node():
         return self.dict[item_name]
 
     def __setitem__(self, item_name, item_value):
+        self.parent_graph.UpdateNodeProperty(self, item_name, item_value)
         self.dict[item_name] = item_value
 
     def __contains__(self, item):
@@ -92,21 +102,27 @@ class Node():
         self.parent_graph.AddEdge(self, node)
         return node
 
-    def Connect(self, node):
-        self.parent_graph.AddEdge(self, node)
+    def Connect(self, target_node):
+        '''Adds directed connection between this node and target node'''
+        self.parent_graph.AddEdge(self, target_node)
 
     def ConnectsTo(self):
+        '''Return all nodes that are connected to this node'''
         return self.parent_graph.ConnectsTo(self)
 
     def FirstConnected(self):
+        '''Return first node connected to this node'''
         return self.parent_graph.ConnectsTo(self)[0]
 
-    def children(self, dict):
-        all_children = self.ConnectsTo()
-        return all_children.Match(dict)
+    def children(self, cond):
+        '''Return all nodes that are connected to this node and
+        satisfying condition <cond> that can be dictionary or bool function'''
 
-    def child(self, dict):
-        return self.children(dict).First()
+        all_children = self.ConnectsTo()
+        return all_children.Match(cond)
+
+    def child(self, condition):
+        return self.children(condition).First()
 
 
 
@@ -130,6 +146,7 @@ class Graph():
         node["id"] = str(self.last_id)
         self.last_id = self.last_id + 1
         self.nodes.append(node)
+        return node
 
     def AddEdge(self, node1, node2):
         if node1 in self.edges:
@@ -160,6 +177,11 @@ class Graph():
             else:
                 is_match = False
         return is_match
+
+    def UpdateNodeProperty(self, node, property_name, new_property_value):
+        '''Updates value of node property'''
+        pass
+
 
     def Match(self, node):
         match_list = NodeList(self)

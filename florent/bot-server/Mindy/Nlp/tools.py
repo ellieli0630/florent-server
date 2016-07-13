@@ -1,6 +1,9 @@
 from practnlptools.tools import Annotator
 import nltk as nl
 import re
+import datetime
+import dateparser
+import time as t
 
 annotator = Annotator()
 
@@ -67,17 +70,39 @@ def get_objects_clean(sent):
     return [x[1] for x in units]
 
 
+def date2timestamp(date_string):
+
+    dt = dateparser.parse(date_string)
+    timestamp = int(t.mktime(dt.timetuple()))
+    return timestamp
+
+
+def timestamp2date(timestamp):
+    string = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+    return string
+
+
 def get_statement_data(sent):
     numbers = re.findall('[0-9]{1,4}', sent)
-    quotes = re.findall('(["][^"]+["])', sent)
+    quotes = re.findall('["]([^"]+)["]', sent)
     phone_numbers = re.findall('([0-9]?\W{1,2}([2-9][0-8][0-9])\W{1,2}([0-9][0-9]{2})\W{1,2}([0-9]{4})(\se?x?t?(\d*)))',sent)
-    date = re.findall('([\d]{2}[-./][\d]{2}[-./](20|19)[\d]{2})',sent)
-    time = re.findall('([\d]{2}[:][\d]{2}\s{0,2}(pm|am))',sent)
+    date = re.findall('([\d]{2}[-./][\d]{2}[-./](20|19)[\d]{2})', sent)
+    time = re.findall('([\d]{2}[:][\d]{2}\s{0,2}(pm|am))', sent)
     var = {}
     var["date"] = [x[0] for x in date]
     var["time"] = [x[0] for x in time]
 
+    if len(var["date"]) == len(var["time"]):
+        var["datetime"] = []
+        for i in range(0, len(var["date"])):
+            var["datetime"].append(date2timestamp(var["date"][i] + " " + var["time"][i]))
+    else:
+        if len(var["date"]) == 1 and (len(var["time"]) > 1):
+            var["datetime"] = []
+            for i in range(0, len(var["time"])):
+                var["datetime"].append(date2timestamp(var["date"][0] + " " + var["time"][i]))
 
+    #print var["datetime"]
 
     if len(numbers) > 0:
         var["number"] = numbers[0]
@@ -85,6 +110,18 @@ def get_statement_data(sent):
         var["quote"] = quotes[0]
     if len(phone_numbers) > 0:
         var["phone"] = phone_numbers[0][0]
+
+    if "|" in sent:
+        vars2 = sent.split("|")[1]
+        vars2 = vars2.split("=")
+        try:
+            dta =  date2timestamp(vars2[1].strip())
+            var[vars2[0].strip()] = dta
+        except:
+            var[vars2[0].strip()] = vars2[1].strip()
+
+
+        print vars2[0],vars2[1]
 
     return var
 
