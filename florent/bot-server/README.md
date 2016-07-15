@@ -24,6 +24,11 @@ cd practNLPTools
 
 sudo python setup.py install
 
+# Overview
+
+This code relies on chatbot engine for both admin interface and user interaction. Engine use rules, that are defined in json files: rules.json (for admin) and user.json (for processing sms messages).  
+
+
 # Usage
 ## Admin panel
 run python admit-bot.py
@@ -31,7 +36,7 @@ run python admit-bot.py
 example commands that are understood by admin panel:
 
 * create new event owner with phone 1-234-567-8901 named "John Smith"
-* create new event named "Great Music Event" that will be held at 11-06-2016  10:00am to 12:00am
+* create new event named "Great Music Event" that will be held at 11-06-2016  10:00am to 11:00am
 * create new place with the name "Best Restaurant"
 * set owner to "John Smith" for event with id  2
 * show all events with owners
@@ -44,7 +49,9 @@ example commands that are understood by admin panel:
 
 testing user behavior in admin panel
 * @a "Best Restaurant" feedback |message_time=11-06-2016 10:30 am
-* @subscribe "Great Music Event" |phone=1-1-234-567-8906
+* @subscribe "Great Music Event" |user_phone=1-1-234-567-8906
+
+see screencast admin-demo2.mp4 and subscribe_test_demo.mp4 for demonstration of how system works. There is also second interactive script chat_user_test.py, it accepts only user messages, not admin commands.
 
 ## Integration
 

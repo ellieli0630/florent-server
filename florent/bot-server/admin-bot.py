@@ -21,7 +21,7 @@ while True:
     answer = engine.get_reply(rules,sent,user_id)
     if answer != "":
         print ("Florent Admin Bot: " + answer)
-    print (engine.get_debug_info(sent))
+   # print (engine.get_debug_info(sent))
    # print (global_graph.Match({}))
     sys.stdout.write('You:')
     sent = sys.stdin.readline().strip().encode("utf-8")

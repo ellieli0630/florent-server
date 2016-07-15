@@ -63,17 +63,18 @@ class Node():
         self.dict = dic
 
         self.parent_graph = parent_graph
+
         if make_or_fetch:
             result = parent_graph.Match(dic)
             if len(result) > 0:
                 self.dict = result[0].dict
             else:
                 node = parent_graph.AddNode(self)
-                self['id'] = node['id']
+                self.dict['id'] = node['id']
 
-        if makenew:
+        if makenew and not make_or_fetch:
             node = parent_graph.AddNode(self)
-            self['id'] = node['id']
+            self.dict['id'] = node['id']
 
     def __iter__(self):
         return self.dict.__iter__()

@@ -55,9 +55,11 @@ class PersistentGraph():
 
     def AddEdge(self, node1, node2):
         session = self.graph_connection.session()
-        node1 = self.__dict2query("node1", node1)
-        node2 = self.__dict2query("node2", node2)
-        query = "MATCH (" + node1 + ")," + "(" + node2 + ")" + "CREATE (node1)-[conn:CONNECTS]->(node2)"
+       # node1a = self.__dict2query("node1", node1)
+       # node2a = self.__dict2query("node2", node2)
+        query = "MATCH  (node1),(node2) WHERE  id(node1) = " + node1['id'] + " and id(node2)=" + str(node2['id']) +  " CREATE UNIQUE (node1)-[conn:CONNECTS]->(node2)"
+       # print query
+        #query = "MATCH (" + node1 + ")," + "(" + node2 + ")" + "CREATE UNIQUE (node1)-[conn:CONNECTS]->(node2)"
       #  print (query)
         session.run(query)
         session.close()

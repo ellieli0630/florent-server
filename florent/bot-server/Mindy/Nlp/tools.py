@@ -86,8 +86,8 @@ def get_statement_data(sent):
     numbers = re.findall('[0-9]{1,4}', sent)
     quotes = re.findall('["]([^"]+)["]', sent)
     phone_numbers = re.findall('([0-9]?\W{1,2}([2-9][0-8][0-9])\W{1,2}([0-9][0-9]{2})\W{1,2}([0-9]{4})(\se?x?t?(\d*)))',sent)
-    date = re.findall('([\d]{2}[-./][\d]{2}[-./](20|19)[\d]{2})', sent)
-    time = re.findall('([\d]{2}[:][\d]{2}\s{0,2}(pm|am))', sent)
+    date = re.findall('([\d]{1,2}[-./][\d]{2}[-./](20|19)[\d]{2})', sent)
+    time = re.findall('([\d]{1,2}[:][\d]{2}\s{0,2}(pm|am))', sent)
     var = {}
     var["date"] = [x[0] for x in date]
     var["time"] = [x[0] for x in time]
@@ -121,7 +121,7 @@ def get_statement_data(sent):
             var[vars2[0].strip()] = vars2[1].strip()
 
 
-        print vars2[0],vars2[1]
+     #   print vars2[0],vars2[1]
 
     return var
 

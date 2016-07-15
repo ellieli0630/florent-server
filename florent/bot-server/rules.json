@@ -19,13 +19,17 @@
 		"objects":["event"],
 		"match":["$EventName <- graph_data['quote']",
 		         "$Date <- graph_data['date'][0]",
-		         "$TimeStart <- graph_data['time'][0]",
-		         "$TimeEnd <- graph_data['time'][1]"
+		         "$TimeStart <- graph_data['datetime'][0]",
+		         "$TimeEnd <- graph_data['datetime'][1]"
 		
 		]
 	},
-	"action": ["$Node <- Node(main_graph,{'type':'event','name':'$EventName','date':'$Date','start_time':'$TimeStart','end_time':'$TimeEnd'})","$ID <- action_vars['$Node']['id']"],
-	"answer": "New event $EventName  created with id = $ID , with date $Date , starting on $TimeStart and ending $TimeEnd"
+	"action": ["$Node <- Node(main_graph,{'type':'event','name':'$EventName','date':'$Date','start_time':$TimeStart,'end_time':$TimeEnd})"
+	          ,"$ID <- action_vars['$Node']['id']"
+	          ,"$Subsribers <- Node(main_graph,{'type':'subscribers'})"
+	          ,"main_graph.AddEdge(action_vars['$Node'],action_vars['$Subsribers'])"
+	          ],
+	"answer": "New event $EventName  created with id = $ID , with date $Date "
 
 },
 
@@ -48,6 +52,74 @@
 
 },
 
+
+{       "comment":"remove event with id = 6",
+	"conditions": {
+		"intent": "statement",
+		"verbs":["remove"],
+		"objects":["event","id"],
+		"match":["$ID <- graph_data['number']"]
+
+		
+	},
+	"action": ["$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
+	           "main_graph.DeleteNode(action_vars['$EventNode'])"],
+	"answer": "Deleted node with id = $ID "
+	}
+,
+{       "comment":"set default reply to 'We are glad to see at our event!' for event with id  5",
+	"conditions": {
+		"intent": "statement",
+		"verbs":["set"],
+		"objects":["reply","event"],
+		"match":["$ID <- graph_data['number']","$ReplyText <- graph_data['quote']"]
+		
+	},
+         "action": ["$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
+                     "$EventName <- action_vars['$EventNode']['name']",
+                     "main_graph.UpdateNodeProperty(action_vars['$EventNode'], 'message', '$ReplyText')"],  
+         
+         "answer": "Ok, default reply message for event with name $EventName is set to ' $ReplyText ' "
+
+},
+
+
+{       "comment":"set event name  'Best music event' for event with id = 5",
+	"conditions": {
+		"intent": "statement",
+		"verbs":["set"],
+		"objects":["event name"],
+		"match":["$ID <- graph_data['number']","$NewName <- graph_data['quote']"]
+		
+	},
+         "action": ["$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
+                     "$EventName <- action_vars['$EventNode']['name']",
+                     "main_graph.UpdateNodeProperty(action_vars['$EventNode'], 'name', '$NewName')"],  
+         
+         "answer": "Ok, the name for event with name $EventName is set to ' $NewName '"
+
+},
+
+
+{       "comment":"set place name  'Best place' for place with id  = 5",
+	"conditions": {
+		"intent": "statement",
+		"verbs":["set"],
+		"objects":["place name"],
+		"match":["$ID <- graph_data['number']","$NewName <- graph_data['quote']"]
+		
+	},
+         "action": ["$PlaceNode <- main_graph.Match({'type':'place','id':'$ID'})[0]",
+                     "$PlaceName <- action_vars['$PlaceNode']['name']",
+                     "main_graph.UpdateNodeProperty(action_vars['$PlaceNode'], 'name', '$NewName')"],  
+         
+         "answer": "Ok, the name for event with name $PlaceName is set to ' $NewName '"
+
+},
+
+
+
+
 {       "comment":"set place 'Best place' for event with id  2",
 	"conditions": {
 		"intent": "statement",
@@ -61,7 +133,8 @@
 	
 	           "$PlaceNode <- main_graph.Match({'type':'place','name':'$PlaceName'})[0]",
 	           "$EventName <- action_vars['$EventNode']['name']",
-	           "main_graph.AddEdge(action_vars['$EventNode'],action_vars['$PlaceNode'])"],
+	           "main_graph.AddEdge(action_vars['$EventNode'],action_vars['$PlaceNode'])",
+	           "main_graph.AddEdge(action_vars['$PlaceNode'],action_vars['$EventNode'])"],
 	           
 	"answer": "Ok, event with name $EventName is located at $PlaceName "
 
@@ -138,7 +211,7 @@
 		"objects":["events"]
 	},
 	"action": ["$Events <- main_graph.Match({'type':'event'})",
-	           "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + x['date'] for x in action_vars['$Events']])"],
+	           "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + pdate(x['start_time']) + ' ' + pdate(x['end_time']) for x in action_vars['$Events']])"],
 	"answer": "I know following events: \n $List"
 
 },
@@ -156,6 +229,22 @@
 
 },
 
+
+{
+	"comment":"show all subscribers for event 'Great Music Event'",
+	"conditions": {
+		"intent": "statement",
+		"verbs":["show"],
+		"objects":["event"],
+		"match":  ["$EventName <- graph_data['quote']"]
+	},
+	"action": ["$Event <- main_graph.Match({'type':'event','name':'$EventName'}).First()",
+	           "$Subscribers <- action_vars['$Event'].child({'type':'subscribers'}).children({'type':'user'})",
+	           "$List <- '\\n'.join([x['id'] + ' ' + x['phone'] for x in action_vars['$Subscribers']])"],
+	"answer": "I know following subscribers for event $EventName : \n $List"
+
+},
+
 {
 	"conditions": {
 		"intent": "question",
@@ -166,6 +255,19 @@
 	"action" : ["$Name <- main_graph.Match({'type':'event','id':'$ID'}).First()['name']"],
 	"answer": "$Name"
 },
+
+{
+        "comment":"what is default reply for event with id = 5",
+	"conditions": {
+		"intent": "question",
+		"objects":["reply","event","id"],
+		"match":["$ID <- graph_data['number']"]
+		
+	},
+	"action" : ["$Name <- main_graph.Match({'type':'event','id':'$ID'}).First()['message']"],
+	"answer": "$Name"
+},
+
 
 
 {
@@ -184,12 +286,50 @@
    "conditions": {
 		"pattern": "QB:{<@><a>}",
 		"match":["$EventName <- graph_data['quote']",
-		         "main_graph.Match({'type':'event','name':action_vars['$EventName']})[0]"]
+		         "$EventMessage <- main_graph.Match({'type':'event','name':action_vars['$EventName']})[0]['message']"
+		         
+		        ]		
+		
+	},
+	
+	"answer": "$EventMessage"
+},
+
+{
+   "conditions": {
+		"pattern": "QB:{<@><subscribe>}",
+		"match":["$EventName <- graph_data['quote']",
+		         "$EventMessage <- main_graph.Match({'type':'event','name':action_vars['$EventName']})[0]['message']",
+		         "$Phone <- graph_data['user_phone']"
+		         
+		         
+		        ]		
+		
+	},
+	"action":["$Subscriber <- Node(main_graph,{'type':'user','phone':'$Phone'},make_or_fetch=True)",
+	          "$EventSubscribers <- main_graph.Match({'type':'event','name':'$EventName'}).First().child({'type':'subscribers'})",
+	          "main_graph.AddEdge(action_vars['$EventSubscribers'],action_vars['$Subscriber'])"
+	          
+	         ],
+	"answer": "$EventMessage"
+},
+
+
+
+
+{
+   "conditions": {
+                "comment": "event message from location",
+		"pattern": "QB:{<@><a>}",
+		"match":["$PlaceName <- graph_data['quote']",
+		         "$MessageTime <- graph_data['message_time']",
+		         "$EventMessage <- main_graph.Match({'type':'place','name':action_vars['$PlaceName']})[0].children({'type':'event'}).Match(lambda x,curtime=action_vars['$MessageTime']:   float(curtime)>float(x['start_time']) and float(curtime)<float(x['end_time'])  )[0]['message']"
+		         ]
 		
 		
 	},
 	
-	"answer": "Thank you for sending feedback for our event $EventName !"
+	"answer": "$EventMessage location map"
 },
 
 
