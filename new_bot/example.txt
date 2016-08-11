@@ -1,0 +1,15 @@
+create new event owner with phone 1-234-567-8901 named "Test Owner"
+
+create new event named "AERONAUT Allston" that will be held at 30-08-2016 10:00am to 11:00am
+
+set owner to "Test Owner" for event with id = 21
+
+create new place with the name "Vegan Restaurant"
+
+set address "267 Western Ave, Boston, MA 02134" for place with id=23
+
+set place to "Vegan Restaurant" for event with id = 21
+
+set default reply "Tired of Uber surging and Lyft prime time? Try Fasten, get $20 off for your first ride using code EL7444, http://bit.ly/2b4aJ8y Did you enjoy the live music? Get access to unlimited concerts and parties in Boston through Jukely for free. Music sounds better together! http://bit.ly/2aqlS5I" for event with id = 21
+
+

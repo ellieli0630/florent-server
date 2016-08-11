@@ -1,0 +1,5 @@
+Mindy ChatBot Engine 
+
+
+This software is provided for use in particular project (Florent SMS processing bot). It should not be distributed or published or used for any other purpose.
+ If you want to use it for different project, contact software author at (dtarasov@meanotek.io). 
