@@ -13,11 +13,12 @@ print ()
 do = True
 while do:
     sys.stdout.write('>>')
-    input_data = sys.stdin.readline()
+    input_data = sys.stdin.readline().strip()
     data = {}
     if "|" in input_data:
         vars2 = input_data.split("|")[1]
         vars2 = vars2.split("=")
+        input_data = input_data.split("|")[0]
         try:
             dta = date2timestamp(vars2[1]. strip())
             data[vars2[0].strip()] = dta

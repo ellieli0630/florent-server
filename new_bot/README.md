@@ -59,6 +59,7 @@ example commands that are understood by admin panel:
 * create new event owner with phone 1-234-567-8901 named "John Smith"
 * create new event named "Great Music Event" that will be held at 11-06-2016  10:00am to 11:00am
 * create new place with the name "Best Restaurant"
+* set address '1st street NY' for place with id=2
 * set owner to "John Smith" for event with id  2
 * show all events with owners
 * set place to "Best Restaurant" for event with id =2
@@ -67,8 +68,11 @@ example commands that are understood by admin panel:
 * remove event with id = 6
 * set event name to "Best music event" for event with id = 2
 * show all subscribers for event "Great Music Event"
+* create new list named 'Best food delivery services' with number = 1
+* set message to 'Max Delivery\nNutropia' for list with id  9
 
 testing user behavior in admin panel
+
 * @feedback "Great Music Event" |user-phone=1-234-567-6523
 * @a "Best Restaurant" feedback |message_time=11-06-2016 10:30 am
 * @subscribe "Great Super Event" |user_phone=1-1-234-567-8906
@@ -102,17 +106,38 @@ the process of sending to user list of interesting places:
 
 answer:  $EventMessage \n The night is still young. Looking for more booze and fun? Let us know where do you wanna go next, we will find you the best spots nearby!
 
-@subscriber no
+no
+
 answer: Thank you for feedback.
 
 OR
 
-@subscriber yes
-answer: OK, write to 'show best spaces' or 'show me 'bars' ('clubs' ect.)'
+yes | yea | sure | tell me | I'd love to (case insensitive)
 
-@subscriber show best spaces
+answer: You can say something like \"show bars\" where you can put anything after \"show\" and get recommendations for places nearby
 
-User get lists of different intresting places. Or user choose category and get list.
+show cafe | what about cafe
+
+User get lists of 3 different intresting places.
+
+more | show more
+
+User get lists of the next 3 different intresting places with an answer:
+Not getting the results you wanted? We got plenty of curated lists for the city's best. Reply \"list\" to see current handles and see if you agree with our picks!
+
+list
+
+User get list of curated picks with an answer:
+answer: Here you go, reply with the number to see our picks! Best on-demand services\n $Picks
+
+1 | 2 ...
+
+answer: Here is our picks for $Keyword \n $List
+
+anything else
+
+answer: I will come up with more recommendations soon!\nThanks for your patience!
+
 
 OWNER:
 

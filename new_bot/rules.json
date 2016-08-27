@@ -1,511 +1,691 @@
 [
-{
-	"comment":"create new event owner with phone 1-234-567-8901 named 'John Smith' ",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["create"],
-		"objects":["owner"],
-		"match":["$Phone <- graph_data['phone']","$Name <- graph_data['quote']"]
-	},
-	"action": ["$Node <- Node(main_graph,{'type':'owner','name':'$Name','phone':'$Phone'})","$ID <- action_vars['$Node']['id']"],
-	"answer": "Created new event owner $Name with phone $Phone and id = $ID "
-
-},
-
-{       "comment":"create new event named 'Great Music Event' that will be held at 11-06-2016  10:00 am to 12:00 am",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["create"],
-		"objects":["event"],
-		"match":["$EventName <- graph_data['quote']",
-		         "$Date <- graph_data['date'][0]",
-		         "$TimeStart <- graph_data['datetime'][0]",
-		         "$TimeEnd <- graph_data['datetime'][1]"
-		
-		]
-	},
-	"action": ["$Node <- Node(main_graph,{'type':'event','name':'$EventName','date':'$Date','start_time':$TimeStart,'end_time':$TimeEnd})"
-	          ,"$ID <- action_vars['$Node']['id']"
-	          ,"$Subsribers <- Node(main_graph,{'type':'subscribers'})"
-	          ,"main_graph.AddEdge(action_vars['$Node'],action_vars['$Subsribers'])"
-	          ],
-	"answer": "New event $EventName  created with id = $ID , with date $Date "
-
-},
-
-{       "comment":"set owner 'John Smith' for event with id  5",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["set"],
-		"objects":["owner","event"],
-		"match":["$ID <- graph_data['number']","$OwnerName <- graph_data['quote']"]
-
-		
-	},
-	"action": ["$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
-	
-	           "$OwnerNode <- main_graph.Match({'type':'owner','name':'$OwnerName'})[0]",
-	           "$EventName <- action_vars['$EventNode']['name']",
-	           "main_graph.AddEdge(action_vars['$EventNode'],action_vars['$OwnerNode'])"],
-	           
-	"answer": "Ok, event with name $EventName is now owned by $OwnerName , $ID "
-
-},
-
-
-{       "comment":"remove event with id = 6",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["remove"],
-		"objects":["event","id"],
-		"match":["$ID <- graph_data['number']"]
-
-		
-	},
-	"action": ["$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
-	           "main_graph.DeleteNode(action_vars['$EventNode'])"],
-	"answer": "Deleted node with id = $ID "
-	}
-,
-{       "comment":"set default reply to 'We are glad to see at our event!' for event with id  5",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["set"],
-		"objects":["reply","event"],
-		"match":["$ID <- graph_data['number']","$ReplyText <- graph_data['quote']"]
-		
-	},
-         "action": ["$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
-                     "$EventName <- action_vars['$EventNode']['name']",
-                     "main_graph.UpdateNodeProperty(action_vars['$EventNode'], 'message', '$ReplyText')"],  
-         
-         "answer": "Ok, default reply message for event with name $EventName is set to ' $ReplyText ' "
-
-},
-
-
-{       "comment":"set event name  'Best music event' for event with id = 5",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["set"],
-		"objects":["event name"],
-		"match":["$ID <- graph_data['number']","$NewName <- graph_data['quote']"]
-		
-	},
-         "action": ["$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
-                     "$EventName <- action_vars['$EventNode']['name']",
-                     "main_graph.UpdateNodeProperty(action_vars['$EventNode'], 'name', '$NewName')"],  
-         
-         "answer": "Ok, the name for event with name $EventName is set to ' $NewName '"
-
-},
-
-
-{       "comment":"set phone 1-234-567-0000  to owner 'John Smith'",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["set"],
-		"objects":["owner"],
-		"match":["$NewPhone <- graph_data['phone']","$OwnerName <- graph_data['quote']"]
-
-	},
-         "action": ["$Owner <- main_graph.Match({'type':'owner','name':'$OwnerName'})[0]",
-                     "main_graph.UpdateNodeProperty(action_vars['$Owner'], 'phone', '$NewPhone')"],
-
-         "answer": "Ok, phone owner $OwnerName is $NewPhone "
-
-},
-
-
-{       "comment":"set place name  'Best place' for place with id  = 5",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["set"],
-		"objects":["place name"],
-		"match":["$ID <- graph_data['number']","$NewName <- graph_data['quote']"]
-
-	},
-         "action": ["$PlaceNode <- main_graph.Match({'type':'place','id':'$ID'})[0]",
-                     "$PlaceName <- action_vars['$PlaceNode']['name']",
-                     "main_graph.UpdateNodeProperty(action_vars['$PlaceNode'], 'name', '$NewName')"],
-
-         "answer": "Ok, the name for event with name $PlaceName is set to ' $NewName '"
-
-},
-
-
-{       "comment":"set address '1st street NY' for place with id=2 ",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["set"],
-		"objects":["place", "address"],
-		"match":["$Address <- graph_data['quote']", "$ID <- graph_data['number']"]
-
-	},
-         "action": ["$PlaceNode <- main_graph.Match({'type':'place','id':'$ID'})[0]",
-                     "$PlaceName <- action_vars['$PlaceNode']['name']",
-                     "main_graph.UpdateNodeProperty(action_vars['$PlaceNode'], 'address', '$Address')"],
-
-         "answer": "Ok, place $PlaceName located $Address"
-
-},
-
-
-
-
-{       "comment":"set place 'Best place' for event with id  2",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["set"],
-		"objects":["place","event"],
-		"match":["$ID <- graph_data['number']","$PlaceName <- graph_data['quote']"]
-
-		
-	},
-	"action": ["$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
-	
-	           "$PlaceNode <- main_graph.Match({'type':'place','name':'$PlaceName'})[0]",
-	           "$EventName <- action_vars['$EventNode']['name']",
-	           "main_graph.AddEdge(action_vars['$EventNode'],action_vars['$PlaceNode'])",
-	           "main_graph.AddEdge(action_vars['$PlaceNode'],action_vars['$EventNode'])"],
-	           
-	"answer": "Ok, event with name $EventName is located at $PlaceName "
-
-},
-
-{       "comment":"show all events with owners and places",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["show"],
-		"objects":["owners and places","events"]
-		
-	},
-	"action": ["$Events <- main_graph.Match({'type':'event'}).Match(lambda x: (x.children({'type':'owner'}).NotEmpty()) and (x.children({'type':'place'}).NotEmpty())   )",
-	 "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + (x.child({'type':'owner'}))['name'] + ' ' + (x.child({'type':'place'}))['name'] for x in action_vars['$Events']])"
-	         
-	
-	            ],
-	           
-	"answer": "I know following events that have owners and places: \n $List"
-
-},
-
-{       "comment":"show all events with owners",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["show"],
-		"objects":["owners","events"]
-		
-	},
-	"action": ["$Events <- main_graph.Match({'type':'event'}).Match(lambda x: x.children({'type':'owner'}).NotEmpty())",
-	 "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + (x.child({'type':'owner'}))['name'] for x in action_vars['$Events']])"
-	         
-	
-	            ],
-	           
-	"answer": "I know following events that have owners: \n $List"
-
-},
-
-
-
-
-
-{       "comment":"create new place named 'The best place'",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["create"],
-		"objects":["place"],
-		"match":["$PlaceName <- graph_data['quote']"]
-	},
-	"action": ["$Node <- Node(main_graph,{'type':'place','name':'$PlaceName'})","$ID <- action_vars['$Node']['id']"],
-	"answer": "New place $PlaceName created with id = $ID"
-
-},
-{
-	"comment":"show all event owners'",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["show"],
-		"objects":["owners"]
-	},
-	"action": ["$Owners <- main_graph.Match({'type':'owner'})",
-	           "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + x['phone'] for x in action_vars['$Owners']])"],
-	"answer": "I know following event owners: \n $List"
-
-}
-,
-
-{
-	"comment":"show all events",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["show"],
-		"objects":["events"]
-	},
-	"action": ["$Events <- main_graph.Match({'type':'event'})",
-	           "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + pdate(x['start_time']) + ' ' + pdate(x['end_time']) for x in action_vars['$Events']])"],
-	"answer": "I know following events: \n $List"
-
-},
-
-{
-	"comment":"show all places",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["show"],
-		"objects":["places"]
-	},
-	"action": ["$Events <- main_graph.Match({'type':'place'})",
-	           "$List <- '\\n'.join([x['id'] + ' ' + x['name'] for x in action_vars['$Events']])"],
-	"answer": "I know following places: \n $List"
-
-},
-
-
-{
-	"comment":"show all subscribers for event 'Great Music Event'",
-	"conditions": {
-		"intent": "statement",
-		"verbs":["show"],
-		"objects":["subscribers"],
-		"match":  ["$EventName <- graph_data['quote']"]
-	},
-	"action": ["$Event <- main_graph.Match({'type':'event','name':'$EventName'}).First()",
-	           "$Subscribers <- action_vars['$Event'].child({'type':'subscribers'}).children({'type':'user'})",
-	           "$List <- '\\n'.join([x['id'] + ' ' + x['phone'] for x in action_vars['$Subscribers']])"],
-	"answer": "I know following subscribers for event $EventName : \n $List"
-
-},
-
-{
-	"conditions": {
-		"intent": "question",
-		"objects":["name","event","id"],
-		"match":["$ID <- graph_data['number']"]
-		
-	},
-	"action" : ["$Name <- main_graph.Match({'type':'event','id':'$ID'}).First()['name']"],
-	"answer": "$Name"
-},
-
-{
-        "comment":"what is default reply for event with id = 5",
-	"conditions": {
-		"intent": "question",
-		"objects":["reply","event","id"],
-		"match":["$ID <- graph_data['number']"]
-		
-	},
-	"action" : ["$Name <- main_graph.Match({'type':'event','id':'$ID'}).First()['message']"],
-	"answer": "Default reply for it is $Name"
-},
-
-
-
-{
-	"conditions": {
-		"intent": "question",
-		"objects":["name","event","id"],
-		"match":["$Name <- graph_data['quote']"]
-		
-	},
-	"action" : ["$Id <- main_graph.Match({'type':'event','name':'$Name'}).First()['id']"],
-	"answer": "$Id"
-},
-
-
-{
-   "conditions": {
-		"pattern": "QB:{<@><feedback>}",
-		"match":["$EventName <- graph_data['quote']",
-		         "$EventMessage <- main_graph.Match({'type':'event','name':action_vars['$EventName']})[0]['message']"
-
-		        ]
-
-	},
-	"action": ["$PlaceName <- main_graph.Match({'type':'event', 'name':'$EventName'})[0].child({'type':'place'})['name']"],
-	"answer": "$EventMessage \n The night is still young. Looking for more booze and fun? Let us know where do you wanna go next, we will find you the best spots nearby!",
-	"store":{
-	   "objects":["placesview"],
-		"place": ["$PlaceName"]
-
-	   }
-},
-
-{
-   "conditions": {
-		"pattern": "QB:{<@><subscribe>}",
-		"match":["$EventName <- graph_data['quote']",
-		         "$EventMessage <- main_graph.Match({'type':'event','name':action_vars['$EventName']})[0]['message']",
-				 "$Phone <- graph_data['user_phone']"
-
-
-		        ]
-
-	},
-	"action":["$Subscriber <- Node(main_graph,{'type':'user','phone':'$Phone'},make_or_fetch=True)",
-	          "$EventSubscribers <- main_graph.Match({'type':'event','name':'$EventName'}).First().child({'type':'subscribers'})",
-	          "main_graph.AddEdge(action_vars['$EventSubscribers'],action_vars['$Subscriber'])",
-	          "$PlaceName <- main_graph.Match({'type':'event', 'name':'$EventName'})[0].child({'type':'place'})['name']"
-
-	         ],
-	"answer": " Thanks for subscribing! We look forward to staying in touch! \n The night is still young. Looking for more booze and fun? Let us know where do you wanna go next, we will find you the best spots nearby! ",
-	"store":{
-	   "objects":["placesview"],
-		"place": ["$PlaceName"]
-
-	   }
-},
-
-
-
-	{
-   "conditions": {
-		"pattern": "QB:{<@><subscriber><yes>}",
-	    "match": ["$User_phone <- graph_data['user_phone']"],
-	    "objects":["placesview"]
-
-	},
-	"action":["$Place <- graph_data['place'][0]", "$Phone <- graph_data['user_phone']"],
-	"answer": " OK, write to 'show me bars/restaurants' or 'show me 'bars' ('clubs' ect.)' ",
-	"store":{
-	   "objects":["listplace"],
-		"place":["$Place"]
-	   }
-},
-
-		{
-   "conditions": {
-		"pattern": "QB:{<@><subscriber><no>}",
-	   "match": ["$User_phone <- graph_data['user_phone']"],
-		"objects":["placesview"]
-	},
-	"action":["$Phone <- graph_data['user_phone']"],
-	"answer": " Thank you for feedback. "
-},
-
-
-	{
-   "conditions": {
-		"pattern": "QB:{<@><subscriber><show><me><bars/restaurants>}",
-	    "match": ["$User_phone <- graph_data['user_phone']"],
-	    "objects":["listplace"]
-
-	},
-	"action":[  "$Place <- graph_data['place'][0]",
-				"$Address <-  main_graph.Match({'type':'place','name':action_vars['$Place']})[0]['address']",
-			    "$List1 <- graph_data['fun'](location=action_vars['$Address'], type1='bars',limit=3)",
-			    "$List2 <- graph_data['fun'](location=action_vars['$Address'], query='restaurants', limit=3)",
-				"$Phone <- graph_data['user_phone']"
-				],
-	"answer": "Here is a list of awesome places nearby, check it out! \n $List1 \n $List2 ",
-	"store":{
-	   "objects":["more"],
-		"place":["$Place"]
-	   }
-},
-
-
-	{
-   "conditions": {
-		"pattern": "QB:{<@><subscriber><show><me><more>}",
-	    "match": ["$User_phone <- graph_data['user_phone']"],
-	    "objects":["more"]
-
-	},
-	"action":[  "$Place <- graph_data['place'][0]",
-				"$Address <-  main_graph.Match({'type':'place','name':action_vars['$Place']})[0]['address']",
-			    "$List1 <- graph_data['fun'](location=action_vars['$Address'], offset=4, type1='bars', limit=6)",
-			    "$List2 <- graph_data['fun'](location=action_vars['$Address'], offset=4, query='restaurants', limit=6)",
-				"$Phone <- graph_data['user_phone']"
-				],
-	"answer": "Here is a list of awesome places nearby, check it out! \n $List1 \n $List2 ",
-	"objects":["listplace"],
-	"place":["$Place"]
-
-},
-
-		{
-
-   "conditions": {
-	   "comment":"@subscriber show me 'bars' ",
-	   "pattern": "QB:{<@><subscriber><show><me><.*>}",
-	   "objects":["listplace"],
-	    "match": ["$Keyword <- graph_data['quote']", "$User_phone <- graph_data['user_phone']"]
-	},
-	"action":[	"$Place <- graph_data['place'][0]",
-				"$Address <-  main_graph.Match({'type':'place','name':action_vars['$Place']})[0]['address']",
-				"$List <- graph_data['fun'](location=action_vars['$Address'], query='$Keyword')",
-				"$Phone <- graph_data['user_phone']"
-					],
-
-	"answer": "Here is a list of selected places on phrase $Keyword \n $List",
-	"objects":["listplace"],
-	"place":["$Place"]
-
-},
-
-
-{
-   "conditions": {
-                "comment": "event message from location",
-		"pattern": "QB:{<@><a>}",
-		"match":["$PlaceName <- graph_data['quote']",
-		         "$MessageTime <- graph_data['message_time']",
-		         "$EventMessage <- main_graph.Match({'type':'place','name':action_vars['$PlaceName']})[0].children({'type':'event'}).Match(lambda x,curtime=action_vars['$MessageTime']:   float(curtime)>float(x['start_time']) and float(curtime)<float(x['end_time'])  )[0]['message']"
-		         ]
-
-	},
-	
-	"answer": "$EventMessage location map"
-},
-
-
-
-{
-   "conditions": {
-		"pattern": "QB:{<@><a>}"
-
-	},
-	
-	"answer": "Thank you for feedback. Sorry we don't know this event or place yet."
-},
-
-
-	{       "comment":"@subsribers send message to 'We are glad to see!' to all subscribers for event with id=4",
-
-		"conditions": {
-
-		"match":  ["$ID <- graph_data['number']","$ReplyText <- graph_data['quote']", "$Phone <- graph_data['user_phone']",
-					"$Owner <- main_graph.Match({'type':'event', 'id':action_vars['$ID']})[0].children({'type':'owner', 'phone':action_vars['$Phone']})[0]['name']"
-					]
-	},
-		"action": ["$Event <- main_graph.Match({'type':'event','id':'$ID'}).First()",
-	           		"$Subscribers <- action_vars['$Event'].child({'type':'subscribers'}).children({'type':'user'})",
-	           		"$Phone <- '\\n'.join([x['phone'] for x in action_vars['$Subscribers']])"
-					],
-         "answer": " ok, message $ReplyText send next people \n $Phone"
-
-}
-
-
+  {
+    "comment": "create new event owner with phone 1-234-567-8901 named 'John Smith' ",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "create"
+      ],
+      "objects": [
+        "owner"
+      ],
+      "match": [
+        "$Phone <- graph_data['phone']",
+        "$Name <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$Node <- Node(main_graph,{'type':'owner','name':'$Name','phone':'$Phone'})",
+      "$ID <- action_vars['$Node']['id']"
+    ],
+    "answer": "Created new event owner $Name with phone $Phone and id = $ID "
+  },
+  {
+    "comment": "create new event named 'Great Music Event' that will be held at 11-06-2016  10:00 am to 12:00 am",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "create"
+      ],
+      "objects": [
+        "event"
+      ],
+      "match": [
+        "$EventName <- graph_data['quote']",
+        "$Date <- graph_data['date'][0]",
+        "$TimeStart <- graph_data['datetime'][0]",
+        "$TimeEnd <- graph_data['datetime'][1]"
+      ]
+    },
+    "action": [
+      "$Node <- Node(main_graph,{'type':'event','name':'$EventName','date':'$Date','start_time':$TimeStart,'end_time':$TimeEnd})",
+      "$ID <- action_vars['$Node']['id']",
+      "$Subsribers <- Node(main_graph,{'type':'subscribers'})",
+      "main_graph.AddEdge(action_vars['$Node'],action_vars['$Subsribers'])"
+    ],
+    "answer": "New event $EventName  created with id = $ID , with date $Date "
+  },
+  {
+    "comment": "set owner 'John Smith' for event with id  5",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "set"
+      ],
+      "objects": [
+        "owner",
+        "event"
+      ],
+      "match": [
+        "$ID <- graph_data['number']",
+        "$OwnerName <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
+      "$OwnerNode <- main_graph.Match({'type':'owner','name':'$OwnerName'})[0]",
+      "$EventName <- action_vars['$EventNode']['name']",
+      "main_graph.AddEdge(action_vars['$EventNode'],action_vars['$OwnerNode'])"
+    ],
+    "answer": "Ok, event with name $EventName is now owned by $OwnerName , $ID "
+  },
+  {
+    "comment": "remove event with id = 6",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "remove"
+      ],
+      "objects": [
+        "event",
+        "id"
+      ],
+      "match": [
+        "$ID <- graph_data['number']"
+      ]
+    },
+    "action": [
+      "$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
+      "main_graph.DeleteNode(action_vars['$EventNode'])"
+    ],
+    "answer": "Deleted node with id = $ID "
+  },
+  {
+    "comment": "set default reply to 'We are glad to see at our event!' for event with id  5",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "set"
+      ],
+      "objects": [
+        "reply",
+        "event"
+      ],
+      "match": [
+        "$ID <- graph_data['number']",
+        "$ReplyText <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
+      "$EventName <- action_vars['$EventNode']['name']",
+      "main_graph.UpdateNodeProperty(action_vars['$EventNode'], 'message', '$ReplyText')"
+    ],
+    "answer": "Ok, default reply message for event with name $EventName is set to ' $ReplyText ' "
+  },
+  {
+    "comment": "set event name  'Best music event' for event with id = 5",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "set"
+      ],
+      "objects": [
+        "event name"
+      ],
+      "match": [
+        "$ID <- graph_data['number']",
+        "$NewName <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
+      "$EventName <- action_vars['$EventNode']['name']",
+      "main_graph.UpdateNodeProperty(action_vars['$EventNode'], 'name', '$NewName')"
+    ],
+    "answer": "Ok, the name for event with name $EventName is set to ' $NewName '"
+  },
+  {
+    "comment": "set phone 1-234-567-0000  to owner 'John Smith'",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "set"
+      ],
+      "objects": [
+        "owner"
+      ],
+      "match": [
+        "$NewPhone <- graph_data['phone']",
+        "$OwnerName <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$Owner <- main_graph.Match({'type':'owner','name':'$OwnerName'})[0]",
+      "main_graph.UpdateNodeProperty(action_vars['$Owner'], 'phone', '$NewPhone')"
+    ],
+    "answer": "Ok, phone owner $OwnerName is $NewPhone "
+  },
+  {
+    "comment": "set place name  'Best place' for place with id  = 5",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "set"
+      ],
+      "objects": [
+        "place name"
+      ],
+      "match": [
+        "$ID <- graph_data['number']",
+        "$NewName <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$PlaceNode <- main_graph.Match({'type':'place','id':'$ID'})[0]",
+      "$PlaceName <- action_vars['$PlaceNode']['name']",
+      "main_graph.UpdateNodeProperty(action_vars['$PlaceNode'], 'name', '$NewName')"
+    ],
+    "answer": "Ok, the name for event with name $PlaceName is set to ' $NewName '"
+  },
+  {
+    "comment": "set address '1st street NY' for place with id=2 ",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "set"
+      ],
+      "objects": [
+        "place",
+        "address"
+      ],
+      "match": [
+        "$Address <- graph_data['quote']",
+        "$ID <- graph_data['number']"
+      ]
+    },
+    "action": [
+      "$PlaceNode <- main_graph.Match({'type':'place','id':'$ID'})[0]",
+      "$PlaceName <- action_vars['$PlaceNode']['name']",
+      "main_graph.UpdateNodeProperty(action_vars['$PlaceNode'], 'address', '$Address')"
+    ],
+    "answer": "Ok, place $PlaceName located $Address"
+  },
+  {
+    "comment": "set place 'Best place' for event with id  2",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "set"
+      ],
+      "objects": [
+        "place",
+        "event"
+      ],
+      "match": [
+        "$ID <- graph_data['number']",
+        "$PlaceName <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$EventNode <- main_graph.Match({'type':'event','id':'$ID'})[0]",
+      "$PlaceNode <- main_graph.Match({'type':'place','name':'$PlaceName'})[0]",
+      "$EventName <- action_vars['$EventNode']['name']",
+      "main_graph.AddEdge(action_vars['$EventNode'],action_vars['$PlaceNode'])",
+      "main_graph.AddEdge(action_vars['$PlaceNode'],action_vars['$EventNode'])"
+    ],
+    "answer": "Ok, event with name $EventName is located at $PlaceName "
+  },
+  {
+    "comment": "show all events with owners and places",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "show"
+      ],
+      "objects": [
+        "owners and places",
+        "events"
+      ]
+    },
+    "action": [
+      "$Events <- main_graph.Match({'type':'event'}).Match(lambda x: (x.children({'type':'owner'}).NotEmpty()) and (x.children({'type':'place'}).NotEmpty())   )",
+      "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + (x.child({'type':'owner'}))['name'] + ' ' + (x.child({'type':'place'}))['name'] for x in action_vars['$Events']])"
+    ],
+    "answer": "I know following events that have owners and places: \n $List"
+  },
+  {
+    "comment": "show all events with owners",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "show"
+      ],
+      "objects": [
+        "owners",
+        "events"
+      ]
+    },
+    "action": [
+      "$Events <- main_graph.Match({'type':'event'}).Match(lambda x: x.children({'type':'owner'}).NotEmpty())",
+      "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + (x.child({'type':'owner'}))['name'] for x in action_vars['$Events']])"
+    ],
+    "answer": "I know following events that have owners: \n $List"
+  },
+  {
+    "comment": "create new place named 'The best place'",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "create"
+      ],
+      "objects": [
+        "place"
+      ],
+      "match": [
+        "$PlaceName <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$Node <- Node(main_graph,{'type':'place','name':'$PlaceName'})",
+      "$ID <- action_vars['$Node']['id']"
+    ],
+    "answer": "New place $PlaceName created with id = $ID"
+  },
+  {
+    "comment": "show all event owners'",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "show"
+      ],
+      "objects": [
+        "owners"
+      ]
+    },
+    "action": [
+      "$Owners <- main_graph.Match({'type':'owner'})",
+      "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + x['phone'] for x in action_vars['$Owners']])"
+    ],
+    "answer": "I know following event owners: \n $List"
+  },
+  {
+    "comment": "show all events",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "show"
+      ],
+      "objects": [
+        "events"
+      ]
+    },
+    "action": [
+      "$Events <- main_graph.Match({'type':'event'})",
+      "$List <- '\\n'.join([x['id'] + ' ' + x['name'] + ' ' + pdate(x['start_time']) + ' ' + pdate(x['end_time']) for x in action_vars['$Events']])"
+    ],
+    "answer": "I know following events: \n $List"
+  },
+  {
+    "comment": "show all places",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "show"
+      ],
+      "objects": [
+        "places"
+      ]
+    },
+    "action": [
+      "$Events <- main_graph.Match({'type':'place'})",
+      "$List <- '\\n'.join([x['id'] + ' ' + x['name'] for x in action_vars['$Events']])"
+    ],
+    "answer": "I know following places: \n $List"
+  },
+  {
+    "comment": "show all subscribers for event 'Great Music Event'",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "show"
+      ],
+      "objects": [
+        "subscribers"
+      ],
+      "match": [
+        "$EventName <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$Event <- main_graph.Match({'type':'event','name':'$EventName'}).First()",
+      "$Subscribers <- action_vars['$Event'].child({'type':'subscribers'}).children({'type':'user'})",
+      "$List <- '\\n'.join([x['id'] + ' ' + x['phone'] for x in action_vars['$Subscribers']])"
+    ],
+    "answer": "I know following subscribers for event $EventName : \n $List"
+  },
+  {
+    "conditions": {
+      "intent": "question",
+      "objects": [
+        "name",
+        "event",
+        "id"
+      ],
+      "match": [
+        "$ID <- graph_data['number']"
+      ]
+    },
+    "action": [
+      "$Name <- main_graph.Match({'type':'event','id':'$ID'}).First()['name']"
+    ],
+    "answer": "$Name"
+  },
+  {
+    "comment": "what is default reply for event with id = 5",
+    "conditions": {
+      "intent": "question",
+      "objects": [
+        "reply",
+        "event",
+        "id"
+      ],
+      "match": [
+        "$ID <- graph_data['number']"
+      ]
+    },
+    "action": [
+      "$Name <- main_graph.Match({'type':'event','id':'$ID'}).First()['message']"
+    ],
+    "answer": "Default reply for it is $Name"
+  },
+  {
+    "conditions": {
+      "intent": "question",
+      "objects": [
+        "name",
+        "event",
+        "id"
+      ],
+      "match": [
+        "$Name <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$Id <- main_graph.Match({'type':'event','name':'$Name'}).First()['id']"
+    ],
+    "answer": "$Id"
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<@><feedback>}",
+      "match": [
+        "$EventName <- graph_data['quote']",
+        "$EventMessage <- main_graph.Match({'type':'event','name':action_vars['$EventName']})[0]['message']"
+      ]
+    },
+    "action": [
+      "$PlaceName <- main_graph.Match({'type':'event', 'name':'$EventName'})[0].child({'type':'place'})['name']"
+    ],
+    "answer": "$EventMessage \n The night is still young. Looking for more booze and fun? Let us know where do you wanna go next, we will find you the best spots nearby!",
+    "store": {
+      "objects": [
+        "placesview"
+      ],
+      "place": [
+        "$PlaceName"
+      ]
+    }
+  },
+  {
+    "comment": "create new list named 'Best food delivery services' with number = 1 ",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "create"
+      ],
+      "objects": [
+        "list"
+      ],
+      "match": [
+        "$Name <- graph_data['quote']",
+        "$Num <- graph_data['number']"
+      ]
+    },
+    "action": [
+      "$Node <- Node(main_graph,{'type':'list','name':'$Name', 'number':'$Num'},make_or_fetch=True)",
+      "$ID <- action_vars['$Node']['id']"
+    ],
+    "answer": "Created new list $Name with id = $ID "
+  },
+  {
+    "comment": "set message to 'Max Delivery\nNutropia' for list with id  9",
+    "conditions": {
+      "intent": "statement",
+      "verbs": [
+        "set"
+      ],
+      "objects": [
+        "message",
+        "list"
+      ],
+      "match": [
+        "$ID <- graph_data['number']",
+        "$Message <- graph_data['quote']"
+      ]
+    },
+    "action": [
+      "$ListNode <- main_graph.Match({'type':'list','id':'$ID'})[0]",
+      "$ListName <- action_vars['$ListNode']['name']",
+      "main_graph.UpdateNodeProperty(action_vars['$ListNode'], 'message', '$Message')"
+    ],
+    "answer": "Ok, default message for list with name ' $ListName ' is set to ' $Message ' "
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<@><subscribe>}",
+      "match": [
+        "$EventName <- graph_data['quote']",
+        "$EventMessage <- main_graph.Match({'type':'event','name':action_vars['$EventName']})[0]['message']",
+        "$Phone <- graph_data['user_phone']"
+      ]
+    },
+    "action": [
+      "$Subscriber <- Node(main_graph,{'type':'user','phone':'$Phone'},make_or_fetch=True)",
+      "$EventSubscribers <- main_graph.Match({'type':'event','name':'$EventName'}).First().child({'type':'subscribers'})",
+      "main_graph.AddEdge(action_vars['$EventSubscribers'],action_vars['$Subscriber'])",
+      "$PlaceName <- main_graph.Match({'type':'event', 'name':'$EventName'})[0].child({'type':'place'})['name']"
+    ],
+    "answer": " Thanks for subscribing! We look forward to staying in touch! \n The night is still young. Looking for more booze and fun? Let us know where do you wanna go next, we will find you the best spots nearby! ",
+    "store": {
+      "objects": [
+        "placesview"
+      ],
+      "place": [
+        "$PlaceName"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<yes>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "placesview"
+      ]
+    },
+    "action": [
+      "$Place <- graph_data['place'][0]",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": " You can say something like \"show bars\" where you can put anything after \"show\" and get recommendations for places nearby ",
+    "store": {
+      "objects": [
+        "listplace"
+      ],
+      "place": [
+        "$Place"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<no>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "placesview"
+      ]
+    },
+    "action": [
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": " Thank you for feedback. "
+  },
+  {
+    "conditions": {
+      "comment": "show bars",
+      "pattern": "QB:{<get><.*>}",
+      "objects": [
+        "listplace",
+        "X"
+      ],
+      "match": [
+        "$Keyword <- graph_data['$X']",
+        "$User_phone <- graph_data['user_phone']"
+      ]
+    },
+    "action": [
+      "$Place <- graph_data['place'][0]",
+      "$Address <-  main_graph.Match({'type':'place','name':action_vars['$Place']})[0]['address']",
+      "$List <- graph_data['fun'](location=action_vars['$Address'], query='$Keyword', limit=3)",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Here is a list of selected places on phrase $Keyword \n $List",
+    "store": {
+      "objects": [
+        "more"
+      ],
+      "place": [
+        "$Place"
+      ],
+      "keyword": [
+        "$Keyword"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<more>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "more"
+      ]
+    },
+    "action": [
+      "$Place <- graph_data['place'][0]",
+      "$Keyword <- graph_data['keyword'][0]",
+      "$Address <-  main_graph.Match({'type':'place','name':action_vars['$Place']})[0]['address']",
+      "$List <- graph_data['fun'](location=action_vars['$Address'], query=action_vars['$Keyword'], offset=3, limit=3)",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Here is more places nearby on phrase $Keyword \n $List \nNot getting the results you wanted? We got plenty of curated lists for the city's best. Reply \"list\" to see current handles and see if you agree with our picks!",
+    "store": {
+      "objects": [
+        "list"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<list>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "list"
+      ]
+    },
+    "action": [
+      "$Picks <- '\\n'.join([': ' .join([x['number'], x['name']]) for x in main_graph.Match({'type':'list'})])",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Here you go, reply with the number to see our picks! Best on-demand services\n $Picks",
+    "store": {
+      "objects": [
+        "list"
+      ],
+      "picks": [
+        "$Picks"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<[0-9]+>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']",
+        "$X <- graph_data['number']"
+      ],
+      "objects": [
+        "list"
+      ]
+    },
+    "action": [
+      "$Keyword <- main_graph.Match({'type':'list', 'number':$X})[0]['name']",
+      "$List <- main_graph.Match({'type':'list', 'number':$X})[0]['message']",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Here is our picks for $Keyword \n $List",
+    "store": {
+      "objects": [
+        "list"
+      ]
+    }
+  },
+    {
+    "conditions": {
+      "pattern": "QB:{<.*>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "list"
+      ]
+    },
+    "action": [
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "I will come up with more recommendations soon!\nThanks for your patience!"
+  },
+  {
+    "conditions": {
+      "comment": "event message from location",
+      "pattern": "QB:{<@><a>}",
+      "match": [
+        "$PlaceName <- graph_data['quote']",
+        "$MessageTime <- graph_data['message_time']",
+        "$EventMessage <- main_graph.Match({'type':'place','name':action_vars['$PlaceName']})[0].children({'type':'event'}).Match(lambda x,curtime=action_vars['$MessageTime']:   float(curtime)>float(x['start_time']) and float(curtime)<float(x['end_time'])  )[0]['message']"
+      ]
+    },
+    "answer": "$EventMessage location map"
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<@><a>}"
+    },
+    "answer": "Thank you for feedback. Sorry we don't know this event or place yet."
+  },
+  {
+    "comment": "@subsribers send message to 'We are glad to see!' to all subscribers for event with id=4",
+    "conditions": {
+      "match": [
+        "$ID <- graph_data['number']",
+        "$ReplyText <- graph_data['quote']",
+        "$Phone <- graph_data['user_phone']",
+        "$Owner <- main_graph.Match({'type':'event', 'id':action_vars['$ID']})[0].children({'type':'owner', 'phone':action_vars['$Phone']})[0]['name']"
+      ]
+    },
+    "action": [
+      "$Event <- main_graph.Match({'type':'event','id':'$ID'}).First()",
+      "$Subscribers <- action_vars['$Event'].child({'type':'subscribers'}).children({'type':'user'})",
+      "$Phone <- '\\n'.join([x['phone'] for x in action_vars['$Subscribers']])"
+    ],
+    "answer": " ok, message $ReplyText send next people \n $Phone"
+  }
 ]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

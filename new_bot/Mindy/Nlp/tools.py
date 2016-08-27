@@ -21,6 +21,8 @@ def match_pattern_words(sent, pattern):
         units = to_elements(tree)
     except:
         units = []
+    # if len(units) > 0:
+    #     print "units", units
     return units
 
 
@@ -44,22 +46,51 @@ def get_verbs(sent):
 
 def get_objects(sent):
     chunks = annotator.getAnnotations(sent)['chunk']
+    # print "chunks", chunks
+    for chunk in chunks:
+        if chunk[0] == 'get' and chunk[1] == 'B-NP':
+            # print chunk
+            pos = chunks.index(chunk)
+            chunks.remove(chunk)
+            chunk = ('get', 'S-VP')
+            # print chunk
+            chunks.insert(pos, chunk)
+        if len(chunks) == 2 and chunk[1] == 'E-NP':
+            # print chunk
+            item = chunk[0]
+            pos = chunks.index(chunk)
+            chunks.remove(chunk)
+            chunk = (item, 'S-NP')
+            # print chunk
+            chunks.insert(pos, chunk)
+    #pos = nl.pos_tag(nl.word_tokenize(sent))
 
-  #pos = nl.pos_tag(nl.word_tokenize(sent))
+    # print "chunks", chunks
     grammar = "NP:{<S-NP>}\n{<B-NP><E-NP>}\n{<B-NP><I-NP>*<E-NP>}"
 
     cp = nl.RegexpParser(grammar)
     tree = cp.parse(chunks)
     units = to_elements(tree)
+    # print "units", units
+
     return (units, chunks)
 
 
 def rectifier(sent):
-    #sent = sent.lower()
+    # print sent
+    sent = sent.lower()
     sent = sent.replace("how many", "how")
     sent = sent.replace("how much", "how")
-#    sent = sent.replace("what", "")
+    #    sent = sent.replace("what", "")
     sent = sent.replace("the ", " ")
+    sent = sent.replace("yea", "yes")
+    sent = sent.replace("sure", "yes")
+    sent = sent.replace("tell me", "yes")
+    sent = sent.replace("i'd love to", "yes")
+    sent = sent.replace("show more", "more")
+    sent = sent.replace("show", "get")
+    sent = sent.replace("what about", "get")
+    # print "rectifier sent", sent
 
     return sent
 
@@ -92,6 +123,7 @@ def get_statement_data(sent):
     phone_numbers = re.findall('([0-9]?\W{0,2}([2-9][0-8][0-9])\W{0,2}([0-9][0-9]{2})\W{0,2}([0-9]{4}))', sent)
     date = re.findall('([\d]{1,2}[-./][\d]{2}[-./](20|19)[\d]{2})', sent)
     time = re.findall('([\d]{1,2}[:][\d]{2}\s{0,2}(pm|am))', sent)
+    email = re.findall('[a-z0-9]+[_a-z0-9\.-]*[a-z0-9]+@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})', sent, re.I)
     var = {}
     var["date"] = [x[0] for x in date]
     var["time"] = [x[0] for x in time]
@@ -114,6 +146,8 @@ def get_statement_data(sent):
         var["quote"] = quotes[0]
     if len(phone_numbers) > 0:
         var["phone"] = phone_numbers[0][0].strip()
+    if len(email) > 0:
+        var["email"] = email[0]
 
     if "|" in sent:
         vars2 = sent.split("|")[1]
