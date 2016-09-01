@@ -25,7 +25,9 @@ class postReplyHandler(tornado.web.RequestHandler):
         message_info = {'user_phone':f}
         data_sending=process_message(text[0], message_info)
         for i in range(len(data_sending[0]['phone'])):
-            send_sms(message_info['user_phone'], str(data_sending[0]['phone'][i]), (data_sending[0]['message']))
+            send_sms(message_info['user_phone'],
+                     str(data_sending[0]['phone'][i]),
+                     (data_sending[0]['message']).strip())
 
 application = tornado.web.Application([
     (r"/bot", postReplyHandler)

@@ -69,7 +69,9 @@ example commands that are understood by admin panel:
 * set event name to "Best music event" for event with id = 2
 * show all subscribers for event "Great Music Event"
 * create new list named 'Best food delivery services' with number = 1
-* set message to 'Max Delivery\nNutropia' for list with id  9
+* **for Florent bot** set type to **'florent'** for list with id  6
+* **for BC bot** set type to **'bc'** for list with id  6
+* set message to 'foodler.com\trycaviar.com, get $10 off through the link - http://bit.ly/28K1HtO\ndoordash.com, get $7 off through the link - http://drd.sh/1uS71s/\ngrubhub.com, they offer flash $7 off or $10 off once you sign up.' for list with id  6
 
 testing user behavior in admin panel
 

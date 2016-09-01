@@ -1,0 +1,282 @@
+[
+  {
+    "conditions": {
+      "pattern": "QB:{<@><feedback>}",
+      "match": [
+        "$EventName <- graph_data['quote']",
+        "$EventMessage <- main_graph.Match({'type':'event','name':action_vars['$EventName']})[0]['message']",
+        "$User_phone <- graph_data['user_phone']"
+      ]
+    },
+    "action": [
+      "$PlaceName <- main_graph.Match({'type':'event', 'name':'$EventName'})[0].child({'type':'place'})['name']",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "$EventMessage \n The night is still young. Looking for more booze and fun? Let us know where do you wanna go next, we will find you the best spots nearby!",
+    "store": {
+      "objects": [
+        "placesview"
+      ],
+      "place": [
+        "$PlaceName"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "comment": "event message from location",
+      "pattern": "QB:{<@><a>}",
+      "match": [
+        "$PlaceName <- graph_data['quote']",
+        "$MessageTime <- graph_data['message_time']",
+        "$User_phone <- graph_data['user_phone']",
+        "$EventMessage <- main_graph.Match({'type':'place','name':action_vars['$PlaceName']})[0].children({'type':'event'}).Match(lambda x,curtime=action_vars['$MessageTime']:   float(curtime)>float(x['start_time']) and float(curtime)<float(x['end_time'])  )[0]['message']"
+      ]
+    },
+    "action": [
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "$EventMessage location map"
+  },
+  {
+    "conditions": {
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "pattern": "QB:{<@><a>}"
+    },
+    "action": [
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Thank you for feedback. Sorry we don't know this event or place yet."
+  },
+  {
+    "comment": "@subsribers send message to 'We are glad to see!' to all subscribers for event with id=4",
+    "conditions": {
+      "match": [
+        "$ID <- graph_data['number']",
+        "$ReplyText <- graph_data['quote']",
+        "$Phone <- graph_data['user_phone']",
+        "$Owner <- main_graph.Match({'type':'event', 'id':action_vars['$ID']})[0].children({'type':'owner', 'phone':action_vars['$Phone']})[0]['name']"
+      ]
+    },
+    "action": [
+      "$Event <- main_graph.Match({'type':'event','id':'$ID'}).First()",
+      "$Subscribers <- action_vars['$Event'].child({'type':'subscribers'}).children({'type':'user'})",
+      "$Phone <- '\\n'.join([x['phone'] for x in action_vars['$Subscribers']])"
+    ],
+    "answer": " $ReplyText"
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<@><subscribe>}",
+      "match": [
+        "$EventName <- graph_data['quote']",
+        "$EventMessage <- main_graph.Match({'type':'event','name':action_vars['$EventName']})[0]['message']",
+        "$User_phone <- graph_data['user_phone']"
+      ]
+    },
+    "action": [
+      "$Phone <- graph_data['user_phone']",
+      "$Subscriber <- Node(main_graph,{'type':'user','phone':'$Phone'},make_or_fetch=True)",
+      "$EventSubscribers <- main_graph.Match({'type':'event','name':'$EventName'}).First().child({'type':'subscribers'})",
+      "main_graph.AddEdge(action_vars['$EventSubscribers'],action_vars['$Subscriber'])",
+      "$PlaceName <- main_graph.Match({'type':'event', 'name':'$EventName'})[0].child({'type':'place'})['name']"
+    ],
+    "answer": " Thanks for subscribing! We look forward to staying in touch! \n The night is still young. Looking for more booze and fun? Let us know where do you wanna go next, we will find you the best spots nearby! ",
+    "store": {
+      "objects": [
+        "placesview"
+      ],
+      "place": [
+        "$PlaceName"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<yes>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "placesview"
+      ]
+    },
+    "action": [
+      "$Place <- graph_data['place'][0]",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": " You can say something like \"show bars\" where you can put anything after \"show\" and get recommendations for places nearby ",
+    "store": {
+      "objects": [
+        "listplace"
+      ],
+      "place": [
+        "$Place"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<no>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "placesview"
+      ]
+    },
+    "action": [
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": " Thank you for feedback. "
+  },
+  {
+    "conditions": {
+      "comment": "show bars",
+      "pattern": "QB:{<get><.*>}",
+      "objects": [
+        "listplace",
+        "X"
+      ],
+      "match": [
+        "$Keyword <- graph_data['$X']",
+        "$User_phone <- graph_data['user_phone']"
+      ]
+    },
+    "action": [
+      "$Place <- graph_data['place'][0]",
+      "$Address <-  main_graph.Match({'type':'place','name':action_vars['$Place']})[0]['address']",
+      "$List <- graph_data['fun'](location=action_vars['$Address'], query='$Keyword', limit=3)",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Here is a list of selected places on phrase $Keyword \n $List",
+    "store": {
+      "objects": [
+        "more"
+      ],
+      "place": [
+        "$Place"
+      ],
+      "keyword": [
+        "$Keyword"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<more>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']",
+        "$Phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "more"
+      ]
+    },
+    "action": [
+      "$Place <- graph_data['place'][0]",
+      "$Keyword <- graph_data['keyword'][0]",
+      "$Address <-  main_graph.Match({'type':'place','name':action_vars['$Place']})[0]['address']",
+      "$List <- graph_data['fun'](location=action_vars['$Address'], query=action_vars['$Keyword'], offset=3, limit=3)",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Here is more places nearby on phrase $Keyword \n $List \nNot getting the results you wanted? We got plenty of curated lists for the city's best. Reply \"list\" to see current handles and see if you agree with our picks!",
+    "store": {
+      "objects": [
+        "list"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<list>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "list"
+      ]
+    },
+    "action": [
+      "$Picks <- '\\n'.join([': ' .join([x['number'], x['name']]) for x in main_graph.Match({'type':'list', 'list_type':'florent'}})])",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Here you go, reply with the number to see our picks! Best on-demand services\n $Picks",
+    "store": {
+      "objects": [
+        "list"
+      ],
+      "picks": [
+        "$Picks"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<[0-9]+>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']",
+        "$X <- graph_data['number']"
+      ],
+      "objects": [
+        "list"
+      ]
+    },
+    "action": [
+      "$Keyword <- main_graph.Match({'type':'list', 'number':$X})[0]['name']",
+      "$List <- main_graph.Match({'type':'list', 'number':$X})[0]['message']",
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Here is our picks for $Keyword \n $List",
+    "store": {
+      "objects": [
+        "list"
+      ]
+    }
+  },
+  {
+    "conditions": {
+      "pattern": "QB:{<.*>}",
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "objects": [
+        "list"
+      ]
+    },
+    "action": [
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "I will come up with more recommendations soon!\nThanks for your patience!"
+  },
+  {
+    "conditions": {
+      "comment": "event message from location",
+      "pattern": "QB:{<@><a>}",
+      "match": [
+        "$PlaceName <- graph_data['quote']",
+        "$MessageTime <- graph_data['message_time']",
+        "$EventMessage <- main_graph.Match({'type':'place','name':action_vars['$PlaceName']})[0].children({'type':'event'}).Match(lambda x,curtime=action_vars['$MessageTime']:   float(curtime)>float(x['start_time']) and float(curtime)<float(x['end_time'])  )[0]['message']",
+        "$User_phone <- graph_data['user_phone']"
+      ]
+    },
+    "action": [
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "$EventMessage location map"
+  },
+  {
+    "conditions": {
+      "match": [
+        "$User_phone <- graph_data['user_phone']"
+      ],
+      "pattern": "QB:{<@><a>}"
+    },
+    "action": [
+      "$Phone <- graph_data['user_phone']"
+    ],
+    "answer": "Thank you for feedback. Sorry we don't know this event or place yet."
+  }
+]

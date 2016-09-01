@@ -1,0 +1,12 @@
+create new list named 'food delivery services' with number = 1
+set message to 'Max Delivery\nNutropia' for list with id  9
+set type to 'florent' for list with id  9
+create new list named 'dating spots' with number = 2
+set message to 'Bergen Hill\nLArtusi' for list with id  10
+@subscribe "Great Music Event" |user_phone=1-1-234-567-8906
+sure |user_phone=1-1-234-567-8906
+show me cafes |user_phone=1-1-234-567-8906
+show me more |user_phone=1-1-234-567-8906
+list |user_phone=1-1-234-567-8906
+1 |user_phone=1-1-234-567-8906
+something else |user_phone=1-1-234-567-8906

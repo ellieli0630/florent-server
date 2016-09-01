@@ -4,7 +4,7 @@ import tornado.ioloop
 import tornado.web
 import sys
 import json
-from user_api import process_message
+from user_bc_api import process_message
 from sms_bc_sender import send_sms
 
 class postReplyHandler(tornado.web.RequestHandler):
@@ -24,8 +24,17 @@ class postReplyHandler(tornado.web.RequestHandler):
         f=str(f)
         message_info = {'user_phone':f}
         data_sending=process_message(text[0], message_info)
+        # print data_sending[0]['message']
         for i in range(len(data_sending[0]['phone'])):
-            send_sms(message_info['user_phone'], str(data_sending[0]['phone'][i]), (data_sending[0]['message']))
+            if type(data_sending[0]['message']) == list:
+                for j in range(len(data_sending[0]['message'])):
+                    send_sms(message_info['user_phone'],
+                             str(data_sending[0]['phone'][i]),
+                             data_sending[0]['message'][j].strip())
+            else:
+                send_sms(message_info['user_phone'],
+                         str(data_sending[0]['phone'][i]),
+                         (data_sending[0]['message']).strip())
 
 application = tornado.web.Application([
     (r"/bot", postReplyHandler)

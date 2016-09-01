@@ -6,7 +6,7 @@ import traceback
 def ld(p,encoding="utf-8"):
     with codecs.open(p,"rt",encoding=encoding) as f:
         return json.load(f)
-data=ld("account_twilio.json")
+data=ld("account_twilio_bc.json")
 
 ACCOUNT_SID=data['ACCOUNT_SID']
 AUTH_TOKEN=data['AUTH_TOKEN']
@@ -19,9 +19,9 @@ def send_sms( sender,receiver, text):
         quantity=quantity+1
         for i in range (quantity):
             client.messages.create(
-            to="+"+receiver,
-            from_="16172497829",
-            body=text[i*1600:i*1600+1600],
+            to = "+"+receiver,
+            from_ = "16172497829",
+            body = text[i*1600:i*1600+1600],
             )
             print "message sent on number "+(receiver)
             print "____________"

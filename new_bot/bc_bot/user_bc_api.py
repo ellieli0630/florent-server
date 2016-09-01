@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
-import Mindy.Interpreter.rule_engine as engine
-from Mindy.Graph.neo4j_graph import PersistentGraph
+import sys
+
+sys.path.append("../")
+
 import config
 from yelp_req import get_places
+from Mindy.Interpreter import rule_engine as engine
+from Mindy.Graph.neo4j_graph import PersistentGraph
 
-rules = engine.load_rules("user.json")
+rules = engine.load_rules("user_bc.json")
 global_graph = PersistentGraph(config.graph_connection)
 engine.set_main_graph(global_graph)
-
 
 
 def process_message(message, data):
@@ -46,6 +49,9 @@ Returns:
         str1=x['$Phone']
         str1=str(str1)
         list=str1.split('\n')
+        if '|' in results:
+            results = results.split('|')
+        # print results, len(results)
         phones.append({'phone': list, 'message': results})
     return phones
 

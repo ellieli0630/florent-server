@@ -1,0 +1,43 @@
+create new list named 'Best Food Delivery Services' with number = 1
+set message to 'foodler.com\ntrycaviar.com, get $10 off through the link - http://bit.ly/28K1HtO\ndoordash.com, get $7 off through the link - http://drd.sh/1uS71s/\ngrubhub.com, they offer flash $7 off or $10 off once you sign up.' for list with id  9
+set type to 'bc' for list with id  9
+
+create new list named 'Best Vegan Spots Around BC' with number = 2
+set message to 'Whole Heart Provisions in Allston http://bit.ly/28LVW0R\nFoMu Alternative Ice cream, coconut based, offers free tasting http://bit.ly/28OiaTQ\nLife Alive in Cambridge http://bit.ly/28P368l\nPiperi, best lunch spot around Government center http://bit.ly/28MvS3x' for list with id  10
+set type to 'bc' for list with id  10
+
+create new list named 'Best Ride Sharing Services' with number = 3
+set message to "You may have Uber already, but check out UberPool Pass in Boston. $40 for 20 trips,\n it's cheaper and faster than the T!\nYou can also try Lyft (Code ELLIE636804) and Fasten (Code EL7444)." for list with id  11
+set type to 'bc' for list with id  11
+
+create new list named 'Best Apps for Academics' with number = 4
+set message to 'StudyBlue and OneClass for flashcards and class notes collaborations\nQuickhelp for cheap on-demand tutoring services\nDon't forget to check Canvas for homework assignment!' for list with id  11
+set type to 'bc' for list with id  11
+
+create new list named 'Best Outings to Break the BC Bubble' with number = 5
+set message to 'http://bit.ly/2bo1lex' for list with id  12
+set type to 'bc' for list with id  12
+
+create new list named 'Best Social Apps' with number = 6
+set message to 'Venmo, share payments with friends,\nPlanning a party? Use Tilt, easily collect money from a group\nFind tons of events outside of BC on Eventbrite\nUse Tablelist to find the best party around Boston, use code 1B3C9 for $25 off! (21+)' for list with id  13
+set type to 'bc' for list with id  13
+
+create new list named 'Best Student Discounts' with number = 7
+set message to '15\% off when you present your student ID at H&M, Goodwill, J. Crew, True Religion (free headphone as well!)' for list with id  14
+set type to 'bc' for list with id  14
+
+create new list named 'Free Things with BC ID' with number = 8
+set message to 'Free Microsoft Office with BC email.\nFree two-day shipping with Amazon Prime for six months\nAccesses to MFA, Isabella Stewart Gardner Museum' for list with id  15
+set type to 'bc' for list with id  15
+
+remove list with id 9
+...
+
+@subscribe "GME" |user_phone=1-1-234-567-8906
+/food |user_phone=1-1-234-567-8906
+show me cafes |user_phone=1-1-234-567-8906
+show me more |user_phone=1-1-234-567-8906
+@subscribe "GME" |user_phone=1-1-234-567-8906
+/list |user_phone=1-1-234-567-8906
+1 |user_phone=1-1-234-567-8906
+something else |user_phone=1-1-234-567-8906

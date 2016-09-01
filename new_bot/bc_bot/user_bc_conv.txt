@@ -1,0 +1,39 @@
+user: @subscribe "GME"
+
+bot: Thanks for subscribing! Hello at GME
+
+bot: If you have entered your information for other clubs, you don\u2019t have to do it again. Simply text @subscribe "club's name" when you sign up for the next club.
+
+bot: Btw, what's your plan for this weekend? Reply /food to see the best food spots around BC or /list to see BC's top 5s.
+
+user: /food
+
+bot: You can say something like "show bars" where you can put anything after "show" and get recommendations for places nearby
+
+user: show cafe
+bot: Here is a list of selected places on phrase cafe \n RISE Coffee, 5.0 stars, Yelp highlights: I'm usually disappointed by yelp spots with a perfect 5-star rating, but Rise 200% deserves their... Address: 85 Stanton St,Lower East Side,New York, NY 10002\nMatcha Cafe Wabi, 5.0 stars, Yelp highlights: Best matcha I've had in NYC!\n\nThe place: cute exterior; painted green like the matcha it serves. ... Address: 233 E 4th St,East Village,New York, NY 10009\nMiscelanea NY, 5.0 stars, Yelp highlights: Ola ! I love these guys ! Very outgoing & their coffee & sandwich beats Starbucks & Gasoline.Peri... Address: 63 E 4th St,East Village,New York, NY 10003
+
+user: show more
+bot: Here is more places nearby on phrase cafe \n Caf Integral, 4.5 stars, Yelp highlights: My favorite coffee in Manhattan. It\'s always great and all the baristas are super nice and funny!... Address: American Two Shot,135 Grand St,SoHo,New York, NY 10013\nCoffee Project New York, 5.0 stars, Yelp highlights: Amazing coffee quality along with friendly and attentive staff.\n\nMy favorite is the deconstructed... Address: 239 E 5th St,East Village,New York, NY 10003\nC&B, 4.5 stars, Yelp highlights: Lucked out moving so close to C&B! The coffee and pastries are great but the breakfast/brunch foo... Address: 178 E 7th St,East Village,New York, NY 10009\n
+
+user: @subscribe "GME"
+
+bot: Thanks for subscribing! Hello at GME
+
+bot: If you have entered your information for other clubs, you don\u2019t have to do it again. Simply text @subscribe "club's name" when you sign up for the next club.
+
+bot: Btw, what's your plan for this weekend? Reply /food to see the best food spots around BC or /list to see BC's top 5s.
+
+user: /list
+
+bot: Here you go, reply with the number to see our picks!\n 1: Best food delivery services\n ...
+
+bot: If you have any other questions about what's popping at BC, chat with our friend Baldwin on Facebook http://bit.ly/2bmvvRy
+
+user: 1
+
+bot: foodler.com\ntrycaviar.com, get $10 off through the link - http://bit.ly/28K1HtO\ndoordash.com, get $7 off through the link - http://drd.sh/1uS71s/\ngrubhub.com, they offer flash $7 off or $10 off once you sign up.
+
+user: something else
+
+bot: Sorry I don't have an answer for you just yet. If you need your questions answered right away, chat with Baldwin on Facebook, http://bit.ly/2bmvvRy
