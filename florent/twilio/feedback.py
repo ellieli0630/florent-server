@@ -1,44 +1,34 @@
 import json
 
+from .utils import route_message
 from ..database.feedback import Feedback
 from ..database import get_session
+from ..utils import getLogger
 
-"""
-{
-  u'AccountSid': u'AC0a215171b6c7ed286ebae5dd74455543',
-  u'ApiVersion': u'2010-04-01',
-  u'Body': u'Hello',
-  u'From': u'+19097208906',
-  u'FromCity': u'POMONA',
-  u'FromCountry': u'US',
-  u'FromState': u'CA',
-  u'FromZip': u'91767',
-  u'MessageSid': u'SM1e98f0501bfaeb833eaaca74e057b922',
-  u'NumMedia': u'0',
-  u'NumSegments': u'1',
-  u'SmsMessageSid': u'SM1e98f0501bfaeb833eaaca74e057b922',
-  u'SmsSid': u'SM1e98f0501bfaeb833eaaca74e057b922',
-  u'SmsStatus': u'received',
-  u'To': u'+16265873439',
-  u'ToCity': u'WEST COVINA',
-  u'ToCountry': u'US',
-  u'ToState': u'CA',
-  u'ToZip': u'91722'
-}
-"""
-
+LOGGER = getLogger("FeedbackService")
 def service(message):
+    serialized_message = message
     message = json.loads(message)
+    body = message["Body"]
+
+    company, topic, feedback = route_message(body)
+    LOGGER.info("Feedback received for {company} about {topic} saying: {feedback}".format(
+        company=company,
+        topic=topic,
+        feedback=feedback
+    ))
 
     feedback = Feedback(
-        body=message["Body"],
+        body=feedback,
         country=message["FromCountry"],
         state=message["FromState"],
         zip_code=message["FromZip"],
-        sender=message["From"]
+        sender=message["From"],
+        category=topic,
+        serialized=serialized_message
     )
 
-    session = get_session()
+    session = get_session(company)
     session.add(feedback)
     session.commit()
     session.close()

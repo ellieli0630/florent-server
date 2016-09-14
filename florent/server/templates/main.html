@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+    <script src="{{ static_url('scripts/test.js') }}" type="application/javascript"></script>
+</head>
+<body>
+    <input type="button" onclick="show_test()" value="alert" />
+    <script type="application/javascript">
+        set_test("{{test}}");
+    </script>
+</body>
+</html>

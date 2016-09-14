@@ -1,15 +1,10 @@
+cd florent-server
+
+curl -fsSL https://get.docker.com/ | sh
+
 sudo apt-get update
-sudo apt-get install -y git python-pip python-dev supervisor
+sudo apt-get install -y git
+git clone https://$GITHUB_ACCESS_TOKEN@github.com/sihrc/florent-server.git
 
-mkdir florent && cd florent && git init
-git pull https://$GITHUB_ACCESS_TOKEN@github.com/sihrc/florent-server.git
-
-chmod og+X /root
-sudo apt-get install -y build-essential postgresql postgresql-contrib libpq-dev
-sudo service postgresql start
-sudo -u postgres createuser -s florent
-sudo -u postgres psql -c "ALTER USER florent WITH PASSWORD 'florentrocks';"
-
-python setup.py develop
-sudo cp supervisor.conf /etc/supervisord.conf
-sudo service supervisor start
+sudo docker build -t florent-docker .
+sudo docker run -d -v /var/lib/postgresql/9.3/main -p 0.0.0.0:80:80 -t florent-docker

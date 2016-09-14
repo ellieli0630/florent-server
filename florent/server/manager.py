@@ -6,12 +6,12 @@ from collections import defaultdict
 import zmq
 from concurrent.futures import ThreadPoolExecutor
 
-from .errors import FlorentError
 from .. import project_dir
 from ..config import MANAGER_CONFIG
 from ..utils import getLogger
 from ..utils.wrappers import try_catch
 from ..utils.parsing_utils import smart_parse
+from ..utils.errors import FlorentError
 
 LOGGER = getLogger("Management")
 ZMQ_CONTEXT = zmq.Context()
