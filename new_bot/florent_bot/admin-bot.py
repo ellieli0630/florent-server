@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
 
+# paul adding this
+import nltk
+nltk.data.path.append('/Users/pawel/PROJECTS/tdi-digital-ocean-box-copy/nltk_data')
+
+
 sys.path.append("../")
 
 import config

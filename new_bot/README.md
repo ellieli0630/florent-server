@@ -22,7 +22,7 @@ NLTK can be installed:
 
     sudo python -m nltk.downloader -d /usr/local/share/nltk_data all
 
-PractNLPTools:
+PractNLPTools (NOTE: run this from `/new_bot`):
 
     git clone https://github.com/biplab-iitb/practNLPTools
 
