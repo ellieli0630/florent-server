@@ -1,48 +1,55 @@
 import json
 
+from .utils import route_message
 from ..database.feedback import Feedback
 from ..database import get_session
+from ..utils.errors import FlorentError
+from ..utils import getLogger
+from .api import send_message
+from .strings import FEEDBACK_THANKS_MESSAGES
 
-"""
-{
-  u'AccountSid': u'AC0a215171b6c7ed286ebae5dd74455543',
-  u'ApiVersion': u'2010-04-01',
-  u'Body': u'Hello',
-  u'From': u'+19097208906',
-  u'FromCity': u'POMONA',
-  u'FromCountry': u'US',
-  u'FromState': u'CA',
-  u'FromZip': u'91767',
-  u'MessageSid': u'SM1e98f0501bfaeb833eaaca74e057b922',
-  u'NumMedia': u'0',
-  u'NumSegments': u'1',
-  u'SmsMessageSid': u'SM1e98f0501bfaeb833eaaca74e057b922',
-  u'SmsSid': u'SM1e98f0501bfaeb833eaaca74e057b922',
-  u'SmsStatus': u'received',
-  u'To': u'+16265873439',
-  u'ToCity': u'WEST COVINA',
-  u'ToCountry': u'US',
-  u'ToState': u'CA',
-  u'ToZip': u'91722'
-}
-"""
-
+FEEDBACK_LOGGER = getLogger("FeedbackService")
 def service(message):
-    message = json.loads(message)
-
+    body = message["Body"]
+    company, topic, feedback = route_message(body)
     feedback = Feedback(
-        body=message["Body"],
+        body=feedback,
+        company=company,
+        topic=topic,
         country=message["FromCountry"],
         state=message["FromState"],
         zip_code=message["FromZip"],
-        sender=message["From"]
+        sender=message["From"],
+        receiver=message["To"],
+        serialized=json.dumps(message)
     )
 
-    session = get_session()
-    session.add(feedback)
-    session.commit()
-    session.close()
+    FEEDBACK_LOGGER.info("Received: From {number} for {company} about {topic} saying {feedback}".format(
+        number=feedback.sender,
+        company=feedback.company,
+        topic=feedback.topic,
+        feedback=feedback.body
+    ))
 
-    return {
-        "success": True
-    }
+    save_feedback(feedback)
+
+    return feedback
+
+def save_feedback(feedback):
+    if not feedback.company:
+        FEEDBACK_LOGGER.warning("Could not detect company to save feedback for {message}".format(
+            message=feedback.serialized
+        ))
+        return
+    session = get_session(feedback.company)
+    try:
+        session.add(feedback)
+        session.commit()
+    finally:
+        session.close()
+
+    send_message(
+        FEEDBACK_THANKS_MESSAGES.get(feedback.company, FEEDBACK_THANKS_MESSAGES["_default"]),
+        feedback.receiver,
+        feedback.sender
+    )

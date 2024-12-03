@@ -21,3 +21,10 @@ class FlorentError(Exception):
             "code": self.code,
             "error": self.msg
         })
+
+class FlorentSMSError(FlorentError):
+    def __init__(self, msg, code=400):
+        super(FlorentError, self).__init__(msg, code=400)
+
+    def __str__(self):
+        return self.msg

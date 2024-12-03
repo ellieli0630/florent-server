@@ -8,8 +8,8 @@ from tornado.gen import coroutine
 from tornado.escape import json_encode
 
 from manager import THREAD_POOL, execute
-from .errors import FlorentError, DEFAULT_ERROR
 from ..utils import getLogger
+from ..utils.errors import FlorentError, FlorentSMSError, DEFAULT_ERROR
 
 LOGGER = getLogger("FlorentRouter")
 class FlorentRouter(RequestHandler):
@@ -44,6 +44,9 @@ class FlorentRouter(RequestHandler):
             # HANDLING LOGIC
             response = yield THREAD_POOL.submit(execute, path, method, self.request.body)
             self.send_response(response)
+        except FlorentSMSError as e:
+            self.send_response(e.to_json(), code=e.code)
+            # TODO - send this message back to user via SMS
         except FlorentError as e:
             self.send_response(e.to_json(), code=e.code)
             LOGGER.warning(e)

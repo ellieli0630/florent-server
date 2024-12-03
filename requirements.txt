@@ -5,3 +5,4 @@ futures==3.0.5
 decorator==4.0.9
 SQLAlchemy==1.0.12
 psycopg2==2.6.1
+twilio==5.4.0

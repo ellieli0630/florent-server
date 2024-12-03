@@ -8,7 +8,7 @@ from sqlalchemy.exc import ProgrammingError
 
 DATABASE = {
     'drivername': 'postgresql',
-    'host': "database",
+    'host': "localhost",
     'port': '5432',
     'username': 'florent',
     'password': 'florentrocks',
@@ -23,6 +23,7 @@ def connection(db_name=None):
 
 def get_session(db_name):
     conn = connection(db_name)
+    create_database(db_name)
     return sessionmaker(bind=conn)()
 
 def create_database(db_name):
@@ -30,6 +31,5 @@ def create_database(db_name):
     if not engine.execute("SELECT 1 FROM pg_database WHERE datname=\'{0}\'".format(db_name)).scalar():
         engine.raw_connection().set_isolation_level(0)
         engine.execute("CREATE DATABASE \"{0}\"".format(db_name))
-
-    conn = connection(db_name)
-    Base.metadata.create_all(bind=conn)
+        conn = connection(db_name)
+        Base.metadata.create_all(bind=conn)

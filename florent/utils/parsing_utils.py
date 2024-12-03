@@ -2,7 +2,7 @@ import json
 import urlparse
 from collections import defaultdict
 
-from ..server.errors import FlorentError
+from .errors import FlorentError
 
 def form_urlencoded_parse(body):
     """
